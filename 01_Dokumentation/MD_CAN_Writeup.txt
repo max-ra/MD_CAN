@@ -1,0 +1,13 @@
+# Writeup CAN at AT90CAN
+
+## Ist zustand: 
+1. Das Modul welches im AT90CAN Implementiert ist besteht aus 3 submodulen. 
+2. **Das Modul AP_CAN**: Dieses ist zuständig für das anlegen (Speicher Reservierung) der MOBs und die verwaltung dieser
+3. **Das Modul can_lib**: Das sorgt für die Implementation der Business Logik
+4. **Das Modul AT90CAN_can_drv**: Implementation der Hardware Logik. 
+
+## Ziel 
+Neu Strukturierung und Port auf alle MCUs welche zur Entwicklung verwendet werden (MFR).   
+1. **AP_CAN**: Soll ausgelagert in die anderen APs werden. Dort soll zumindest fürs erste die Verwaltung des Jeweiligen MOBs Start finden. Zwecks Optimierung sollen aber die Daten am Stück im SRAM gespeichert werden. D.h. die Nachrichten werden nicht im "Speicherbereich" (D.h. im Dokument) der APs abgespeichert sondern in der MD_CAN. Dort soll ein komplettes SRAM Feld erzeugt werden. Damit ist es Möglich die DMA Sequenzer für den Datentransport vom CAN Modul (dem Hardware Modul im Chip) zur Softer (Dem Speicher im RAM) zu nutzten (das funktioniert natürlich auch umgekehrt). 
+2. **can_lib**: Wird umbenennt in **MD_CAN**. Dort wird die Business Logik implementiert (Siehe Mindmap). 
+3. **AT90CAN-can_drv** muss neu strukturiert werden. Dort sollen nur noch AT90CAN (Hardware) spezifische Operationen durch geführt werden. 
