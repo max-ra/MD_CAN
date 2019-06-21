@@ -34,6 +34,7 @@
     void MD_CAN_worker_outbound(void);
     uint_fast8_t get_free_buffer(uint_fast8_t *Buffer);
     void MD_CAN_next_mob_pointer(void);
+    void MD_CAN_Callback_dummy(void);
     
     void MD_CAN_init(void) {
     //Message Boxes Mapper
@@ -43,7 +44,7 @@
         CAN_MOB_dummy.Status = Empty;
         CAN_MOB_dummy.data_length = 0;
         CAN_MOB_dummy.frame_type = standard;
-        CAN_MOB_dummy.work_don_callback = &NULL;
+        CAN_MOB_dummy.work_don_callback = &MD_CAN_Callback_dummy;
         
         uint_fast8_t i;
         for(i = 0; i < CAN_Setting_MessageBox_Max; i++){
@@ -170,4 +171,8 @@
         }
         
         return Error;
+    }
+    
+    void MD_CAN_Callback_dummy(void) {
+        asm("NOP");
     }

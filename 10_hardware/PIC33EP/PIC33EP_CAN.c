@@ -19,6 +19,7 @@ uint_fast16_t Buffer_State;
 
 // ##### function #####
 void clearRxFlags(unsigned char buffer_number);
+void CAN_init_DMA();
 
 void CAN_init(void) {
 // Clear Buffer usage
