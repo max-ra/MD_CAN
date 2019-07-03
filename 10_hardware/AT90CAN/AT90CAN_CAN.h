@@ -26,7 +26,7 @@
 #include "../../common.h"
 
 // ##### Settings #####
-#define CAN_Setting_MessageBox_Max 16
+#define CAN_Setting_MessageBox_Max 15
 #define CAN_setting_BAUDRATE 1000	//1Mbaud
 #define CAN_setting_swap_endianness 0
 
@@ -385,34 +385,6 @@ extern  uint8_t can_get_mob_free(void);
 extern  uint8_t can_get_mob_status(void);
 
 //------------------------------------------------------------------------------
-//  @fn can_set_data
-//!
-//! This function copy the data from the address to the selected MOb
-//! passed as parameter.
-//!
-//! @warning moved to CAN_send_Data(CAN_MOB *in_MOB).
-//!
-//! @param CAN message data address.
-//!
-//! @return none.
-//!
-//extern void can_set_data(uint8_t* p_can_message_data, uint8_t dlc);
-
-//------------------------------------------------------------------------------
-//  @fn can_get_data
-//!
-//! This function copy the data from the selected MOb to the address
-//! passed as parameter.
-//!
-//! @warning moved to CAN_recive_Data(CAN_MOB *in_MOB).
-//!
-//! @param CAN message data address.
-//!
-//! @return none.
-//!
-//extern  void can_get_data(uint8_t* p_can_message_data);
-
-//------------------------------------------------------------------------------
 //  @fn can_auto_baudrate
 //!
 //! This function programs itself the CANBTx registers if there is some
@@ -458,20 +430,20 @@ extern uint8_t can_fixed_baudrate(uint8_t eval);
 //! MOB_NOT_REACHED) if a MOb for Rx or Tx has been found. If aborting
 //! is performed, the CAN descriptor status will be set to STATUS_CLEARED.
 //!
-//! @param  st_cmd_t* - Can_descriptor pointer on CAN descriptor structure
+//! @param  CAN_MOB* - Can_descriptor pointer on CAN descriptor structure
 //!         to select the action to do.
 //!
-//! @return CAN_CMD_ACCEPTED - command is accepted
-//!         CAN_CMD_REFUSED  - command is refused
+//! @return OK - command is accepted
+//!         Error  - command is refused
 //!
 extern uint8_t can_cmd(CAN_MOB* in_MOB);
 
 
 /**Init CAN hardware interface.
-all shuld set bevor calling can_init. Default F_CPU 16000000UL and baud 1Mbaud*/
+Baud and F_CPU must set before can_init. Default F_CPU 16000000UL and baud 1Mbaud*/
 uint_fast8_t CAN_init(void);
 
-/**Add new CAN mob to the rx que.
+/**Add new CAN mob to the RX queue.
 @return OK if send is successful otherwise return ERROR.*/
 uint_fast8_t CAN_RxMOB_init(CAN_MOB *in_MOB);
 
@@ -479,18 +451,18 @@ uint_fast8_t CAN_RxMOB_init(CAN_MOB *in_MOB);
 @return OK if send is successful otherwise return ERROR.*/
 uint_fast8_t CAN_send_Data(CAN_MOB *in_MOB);
 
-/**Coppy Data and Setup from register to MOB data buffer.
-Restarts MOB automaticaly.
+/**Copy Data and Setup from register to MOB data buffer.
+Restarts MOB automatically.
 @return OK if MOB is transfered otherwise return ERROR.*/
 uint_fast8_t CAN_recive_Data(CAN_MOB *in_MOB);        
 
 /**Check if new Data is received by CAN interface. 
-Return OK if a new CAN data is received for the specific buffer otherwise ERROR*/
+@return OK if a new CAN data is received for the specific buffer otherwise ERROR*/
 uint_fast8_t CAN_check_new_Data (CAN_MOB *in_MOB);    
 
 /**Check mob status and updates in MOB structure.*/
 uint_fast8_t CAN_check_mob_status (CAN_MOB *in_MOB);
 
-/**Release resorces and finish MOB.*/
+/**Release resources and finish MOB.*/
 uint_fast8_t CAN_finish_mob (CAN_MOB *in_MOB);
 #endif /* AT90CAN_CAN_H_ */

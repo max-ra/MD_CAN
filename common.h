@@ -66,8 +66,8 @@ typedef struct{
 	CAN_Stat Status;
 	CAN_cmd Command;
 	CAN_frame_type frame_type;
-	uint_fast8_t Hardware_buffer;   	/**< Number of Hardware DMA buffer (Message Box)used to send and receive messages */
-	CAN_id Identifyer; 
+	uint_fast8_t Hardware_buffer;   	/**< Handeld by MD_CAN do not  init Number of Hardware DMA buffer (Message Box)used to send and receive messages */
+	CAN_id Identifyer;					
 	unsigned char data[8];	
 	unsigned char data_length;
     void (*work_don_callback) (void);
