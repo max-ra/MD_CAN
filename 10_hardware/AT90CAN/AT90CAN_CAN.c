@@ -22,10 +22,14 @@
 
 
 // ##### function #####
+void can_set_data(uint8_t* p_can_message_data, uint8_t dlc);
 
+/** Delete CAN_MOB data. */
+void CAN_Mob_data_init (uint8_t *Data, uint_fast8_t dlc);
 
-void CAN_init(void) {
-if ((Can_bit_timing(mode))==0) {
+uint_fast8_t CAN_init(void) {
+	//@todo: can init hardcoded to fixed baud (mode = 0)
+if ((Can_bit_timing(0))==0) {
 	return Error;
 }
 
@@ -35,39 +39,198 @@ Can_enable();
 return OK;
 }
 
+
+
+uint_fast8_t CAN_check_new_Data (CAN_MOB *in_MOB) {
+//switch to CAN MOB page
+ if(in_MOB->Hardware_buffer > 15) {
+	 return Error;
+ }
+ CANPAGE = (in_MOB->Hardware_buffer << 4);
+ 
+ //Check for news
+  uint_fast8_t mob_status; 	
+  mob_status = can_get_mob_status();
+  
+  if ((mob_status == MOB_RX_COMPLETED) || (mob_status == MOB_RX_COMPLETED_DLCW)) {
+	  return OK;
+  } else {
+	  return Error;
+  }
+}
+
+uint_fast8_t  CAN_recive_Data(CAN_MOB *in_MOB) {
+uint_fast8_t temp_CAN_cmd = in_MOB->Command;
+
+//switch to CAN page
+ if(in_MOB->Hardware_buffer > 15) {
+	 return Error;
+ }
+ CANPAGE = (in_MOB->Hardware_buffer << 4);
+
+//Read MOB setup
+	in_MOB->data_length = Can_get_dlc();
+	//@todo remote transmit request 
+	
+//read Identifyer
+	if (Can_get_ide()) {
+		in_MOB->frame_type = extendet;
+		Can_get_ext_id(in_MOB->Identifyer.extendet);
+	} else {
+		in_MOB->frame_type = standard;
+		Can_get_std_id(in_MOB->Identifyer.standard);
+	}
+	
+//read Data
+ interrupt_disable();
+	uint8_t data_index;
+	#if CAN_setting_swap_endianness
+	 int_fast8_t swap_bytes = 1;
+	#else
+	 int_fast8_t swap_bytes = 0;
+	#endif
+
+	for (data_index = 0; data_index < (Can_get_dlc()); data_index++)
+	{
+		in_MOB->data[data_index+swap_bytes] = CANMSG;
+		
+		#if CAN_setting_swap_endianness
+		 if (swap_bytes == 1)
+		  swap_bytes = -1;
+		 else
+		  swap_bytes = 1;
+		#endif
+	}
+
+	interrupt_enable();
+	
+	
+//clear MOB
+	in_MOB->Command = CMD_ABORT;
+	can_cmd(in_MOB);
+	
+//start Mob
+	if (temp_CAN_cmd == CMD_RX_DATA || temp_CAN_cmd == CMD_RX_REMOTE) {
+		in_MOB->Command = temp_CAN_cmd;
+		can_cmd(in_MOB);
+	}
+	
+return OK;
+}
+
+uint_fast8_t CAN_RxMOB_init(CAN_MOB *in_MOB) {
+	if(can_cmd(in_MOB) == OK) {
+		return OK;
+	} else {
+		return Error;
+	}	
+}
+
+uint_fast8_t CAN_send_Data(CAN_MOB *in_MOB){
+	//overwrite prevention of existing HW MOB message boxes.
+		in_MOB->Hardware_buffer = 255;
+		
+	//check if TX is set
+	if ((in_MOB->Command == CMD_TX_DATA) || (in_MOB->Command == CMD_TX_REMOTE)) {
+		return (can_cmd(in_MOB));
+	} else {
+		return Error;
+	}
+}
+
+void can_set_data(uint8_t* p_can_message_data, uint8_t dlc){
+	uint8_t data_index;
+	#if  CAN_setting_swap_endianness
+	int_fast8_t swap_bytes = 1;
+	#else
+	int_fast8_t swap_bytes = 0;
+	#endif
+
+	for (data_index=0;data_index < dlc;data_index++) {
+		CANMSG = *(p_can_message_data + data_index + swap_bytes);
+
+		#if CAN_setting_swap_endianness
+		if (swap_bytes == 1)
+		swap_bytes = -1;
+		else
+		swap_bytes = 1;
+		#endif
+	}
+}
+
 void can_clear_all_mob(void)
 {
-uint8_t  mob_number;
-uint8_t  data_index;
+	uint8_t  mob_number;
+	uint8_t  data_index;
 
 	for (mob_number = 0; mob_number < NB_MOB; mob_number++)
-    {
-        CANPAGE = (mob_number << 4);    //! Page index
-        Can_clear_mob();                //! All MOb Registers=0
+	{
+		CANPAGE = (mob_number << 4);    //! Page index
+		Can_clear_mob();                //! All MOb Registers=0
 
-        for (data_index = 0; data_index < NB_DATA_MAX; data_index++)
-        {
-            CANMSG = 0;                 //! MOb data FIFO
-        }
-    }
+		for (data_index = 0; data_index < NB_DATA_MAX; data_index++)
+		{
+			CANMSG = 0;                 //! MOb data FIFO
+		}
+	}
+}
+
+uint_fast8_t CAN_finish_mob (CAN_MOB *in_MOB) {
+	in_MOB->Command = CMD_ABORT;
+	return(can_cmd(in_MOB));
 }
 
 uint8_t can_get_mob_free(void)
 {
-    uint8_t mob_number, page_saved;
+	uint8_t mob_number, page_saved;
 
-    page_saved = CANPAGE;
-    for (mob_number = 0; mob_number < NB_MOB; mob_number++)
-    {
-        Can_set_mob(mob_number);
-        if ((CANCDMOB & 0xC0) == 0x00) //! Disable configuration
-        {
-            CANPAGE = page_saved;
-            return (mob_number);
-        }
-    }
-    CANPAGE = page_saved;
-    return (NO_MOB);
+	page_saved = CANPAGE;
+	for (mob_number = 0; mob_number < NB_MOB; mob_number++)
+	{
+		Can_set_mob(mob_number);
+		if ((CANCDMOB & 0xC0) == 0x00) //! Disable configuration
+		{
+			CANPAGE = page_saved;
+			return (mob_number);
+		}
+	}
+	CANPAGE = page_saved;
+	return (NO_MOB);
+}
+
+
+uint_fast8_t CAN_check_mob_status (CAN_MOB *in_MOB) {
+uint_fast8_t mob_status;
+
+//switch to CAN page
+if(in_MOB->Hardware_buffer > 15) {
+	return Error;
+}
+CANPAGE = (in_MOB->Hardware_buffer << 4);
+
+mob_status = can_get_mob_status();
+
+switch (mob_status)
+{
+	case MOB_RX_COMPLETED:
+	case MOB_RX_COMPLETED_DLCW:
+		in_MOB->Status = RX_Finish;
+	break;
+	
+	case MOB_TX_COMPLETED:
+		in_MOB->Status = TX_Finish;
+	break;
+	
+	case MOB_NOT_COMPLETED:
+		in_MOB->Status = Pending;
+	break;
+	
+	default:
+		in_MOB->Status = Fault;
+	break;
+}
+
+return OK;
 }
 
 uint8_t can_get_mob_status(void) {
@@ -100,41 +263,6 @@ uint8_t can_get_mob_status(void) {
 	return(MOB_NOT_COMPLETED);
 }
 
-uint_fast8_t  CAN_recive_Data(CAN_MOB *in_MOB)
-{
-
-//switch to CAN page
- if((in_MOB->Hardware_buffer == 0) || (in_MOB->Hardware_buffer > 14)) {
-	 return Error;
- }
- CANPAGE = (in_MOB->Hardware_buffer << 4);
-
- interrupt_disable();
-	uint8_t data_index;
-	#if CAN_setting_swap_endianness
-	 int_fast8_t swap_bytes = 1;
-	#else
-	 int_fast8_t swap_bytes = 0;
-	#endif
-
-	for (data_index = 0; data_index < (Can_get_dlc()); data_index++)
-	{
-		in_MOB->data[data_index+swap_bytes] = CANMSG;
-		
-		#if CAN_setting_swap_endianness
-		 if (swap_bytes == 1)
-		  swap_bytes = -1;
-		 else
-		  swap_bytes = 1;
-		#endif
-	}
-
-	interrupt_enable();
-	
-	return OK;
-}
-
-
 uint8_t can_auto_baudrate (uint8_t mode)
 {
 	uint8_t  uint8_t_temp0;                               //! Temporary variable
@@ -143,7 +271,7 @@ uint8_t can_auto_baudrate (uint8_t mode)
 	uint8_t  bt_not_found, wait_for_rx, evaluate;    //! Keys for "while()" loops
 	uint8_t  try_conf;                               //! Key for configurate CAN
 	uint8_t  ovrtim_flag=0;                          //! Timer overflow count
-	U16 conf_index;                             //! Count of bit timing configuration tried
+	uint16_t conf_index;                             //! Count of bit timing configuration tried
 	uint8_t  bt_performed;                           //! Return flag
 
 	//! --- Default setting
@@ -345,43 +473,32 @@ uint8_t can_fixed_baudrate(uint8_t mode)
 	return 1;
 }
 
-//------------------------------------------------------------------------------
-//  @fn can_cmd
-//!
-//! This function takes a CAN descriptor, analyses the action to do:
-//! transmit, receive or abort.
-//! This function returns a status (CAN_CMD_ACCEPTED or CAN_CMD_REFUSED) if
-//! a MOb for Rx or Tx has been found. If no MOB has been found, the
-//! application must be retry at a later date.
-//! This function also updates the CAN descriptor status (MOB_PENDING or
-//! MOB_NOT_REACHED) if a MOb for Rx or Tx has been found. If aborting
-//! is performed, the CAN descriptor status will be set to STATUS_CLEARED.
-//!
-//! @param  st_cmd_t* - Can_descriptor pointer on CAN descriptor structure
-//!         to select the action to do.
-//!
-//! @return CAN_CMD_ACCEPTED - command is accepted
-//!         CAN_CMD_REFUSED  - command is refused
-//!
-//------------------------------------------------------------------------------
-uint8_t can_cmd(CAN_MOB* in_MOB)
-{
-	uint8_t mob_handle, cpt;
+uint8_t can_cmd(CAN_MOB* in_MOB) {
+	uint8_t mob_handle, data_index;
 	uint32_t uint32_t_temp;
 	
-//Check canpage boundary
-if(in_MOB->Hardware_buffer > 14) {
-	return Error;
-}
 	
 	if (in_MOB->Command == CMD_ABORT)
 	{
+			
+		//Check canpage boundary
+		if(in_MOB->Hardware_buffer > 15) {
+			return Error;
+		}
 		if (in_MOB != Empty)
 		{
 			//todo wann soll abgebrochen werden??
-			Can_set_mob(in_MOB->Hardware_buffer);
-			Can_mob_abort();
-			Can_clear_status_mob();       // To be sure !
+				Can_set_mob(in_MOB->Hardware_buffer);
+				Can_mob_abort();
+				Can_clear_status_mob();       // To be sure !
+			
+			//Clear Hardware Data
+				Can_clear_mob();                //! All MOb Registers=0
+
+				for (data_index = 0; data_index < NB_DATA_MAX; data_index++) {
+					CANMSG = 0;                 //! MOb data FIFO
+				}
+			
 			in_MOB->Hardware_buffer = 255;
 		}
 		in_MOB->Status = Empty;
@@ -424,25 +541,6 @@ if(in_MOB->Hardware_buffer > 14) {
 				break;
 				//------------
 				case CMD_RX_DATA:
-				uint32_t_temp=0; Can_set_ext_msk(uint32_t_temp);
-				Can_set_dlc(in_MOB->data_length);
-				Can_set_rtrmsk(); 
-				Can_clear_rtr();
-				Can_clear_idemsk();
-				Can_config_rx();
-				break;
-				//------------
-				case CMD_RX_REMOTE:
-				uint32_t_temp=0; Can_set_ext_msk(uint32_t_temp);
-				Can_set_dlc(in_MOB->data_length);
-				Can_set_rtrmsk(); 
-				Can_set_rtr();
-				Can_clear_rplv();
-				Can_clear_idemsk();
-				Can_config_rx();
-				break;
-				//------------
-				case CMD_RX_MASKED:
 				if (in_MOB->frame_type == extendet){
 					Can_set_ext_id(in_MOB->Identifyer.extendet);
 					} else {
@@ -455,7 +553,7 @@ if(in_MOB->Hardware_buffer > 14) {
 				Can_config_rx();
 				break;
 				//------------
-				case CMD_RX_DATA_MASKED:
+				case CMD_RX_REMOTE:
 				if (in_MOB->frame_type == extendet){
 					Can_set_ext_id(in_MOB->Identifyer.extendet);
 					} else {
@@ -468,39 +566,20 @@ if(in_MOB->Hardware_buffer > 14) {
 				Can_set_idemsk();
 				Can_config_rx();
 				break;
+				
 				//------------
-				case CMD_RX_REMOTE_MASKED:
+				case CMD_REPLY:
 				if (in_MOB->frame_type == extendet){
 					Can_set_ext_id(in_MOB->Identifyer.extendet);
 					} else {
 					Can_set_std_id(in_MOB->Identifyer.standard);
 				}
+				can_set_data(in_MOB->data, in_MOB->data_length);
+				//for (cpt=0;cpt<cmd->dlc;cpt++) CANMSG = *(cmd->pt_data + cpt);
 				uint32_t_temp=~0; Can_set_ext_msk(uint32_t_temp);
 				Can_set_dlc(in_MOB->data_length);
-				Can_set_rtrmsk();
+				Can_set_rtrmsk(); 
 				Can_set_rtr();
-				Can_clear_rplv();
-				Can_set_idemsk();
-				Can_config_rx();
-				break;
-				//------------
-				case CMD_REPLY:
-				for (cpt=0;cpt<cmd->dlc;cpt++) CANMSG = *(cmd->pt_data + cpt);
-				uint32_t_temp=0; Can_set_ext_msk(uint32_t_temp);
-				Can_set_dlc(cmd->dlc);
-				cmd->ctrl.rtr=1; Can_set_rtrmsk(); Can_set_rtr();
-				Can_set_rplv();
-				Can_clear_idemsk();
-				Can_config_rx();
-				break;
-				//------------
-				case CMD_REPLY_MASKED:
-				if (cmd->ctrl.ide){ Can_set_ext_id(cmd->id.ext);}
-				else              { Can_set_std_id(cmd->id.std);}
-				for (cpt=0;cpt<cmd->dlc;cpt++) CANMSG = *(cmd->pt_data + cpt);
-				uint32_t_temp=~0; Can_set_ext_msk(uint32_t_temp);
-				Can_set_dlc(cmd->dlc);
-				cmd->ctrl.rtr=1; Can_set_rtrmsk(); Can_set_rtr();
 				Can_set_rplv();
 				Can_set_idemsk();
 				Can_config_rx();
@@ -508,7 +587,8 @@ if(in_MOB->Hardware_buffer > 14) {
 				//------------
 				default:
 				// case CMD_NONE or not implemented command
-				cmd->status = STATUS_CLEARED;
+				in_MOB->Status = Empty;
+				return Error;
 				break;
 				//------------
 			} // switch (cmd ...
@@ -519,4 +599,12 @@ if(in_MOB->Hardware_buffer > 14) {
 		}
 	} // else of no CMD_ABORT
 	return OK;
+}
+
+void CAN_Mob_data_init (uint8_t *Data, uint_fast8_t dlc) {
+	uint_fast8_t i;
+	
+	for (i = 0; i < DLC; i++) {
+		*(Data + i) = 0;
+	}
 }

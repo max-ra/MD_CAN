@@ -464,26 +464,33 @@ extern uint8_t can_fixed_baudrate(uint8_t eval);
 //! @return CAN_CMD_ACCEPTED - command is accepted
 //!         CAN_CMD_REFUSED  - command is refused
 //!
-extern uint8_t can_cmd (st_cmd_t *);
+extern uint8_t can_cmd(CAN_MOB* in_MOB);
 
 
 /**Init CAN hardware interface.
 all shuld set bevor calling can_init. Default F_CPU 16000000UL and baud 1Mbaud*/
-void CAN_init(void);
+uint_fast8_t CAN_init(void);
 
 /**Add new CAN mob to the rx que.
 @return OK if send is successful otherwise return ERROR.*/
-uint_fast8_t CAN_RxMOB_init(CAN_MOB *in_MOB)
+uint_fast8_t CAN_RxMOB_init(CAN_MOB *in_MOB);
 
 /**Send CAN mob out.
 @return OK if send is successful otherwise return ERROR.*/
 uint_fast8_t CAN_send_Data(CAN_MOB *in_MOB);
 
-/**Coppy Data from register to MOB buffer. 
+/**Coppy Data and Setup from register to MOB data buffer.
+Restarts MOB automaticaly.
 @return OK if MOB is transfered otherwise return ERROR.*/
 uint_fast8_t CAN_recive_Data(CAN_MOB *in_MOB);        
 
 /**Check if new Data is received by CAN interface. 
 Return OK if a new CAN data is received for the specific buffer otherwise ERROR*/
 uint_fast8_t CAN_check_new_Data (CAN_MOB *in_MOB);    
+
+/**Check mob status and updates in MOB structure.*/
+uint_fast8_t CAN_check_mob_status (CAN_MOB *in_MOB);
+
+/**Release resorces and finish MOB.*/
+uint_fast8_t CAN_finish_mob (CAN_MOB *in_MOB);
 #endif /* AT90CAN_CAN_H_ */

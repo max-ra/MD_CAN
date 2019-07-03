@@ -34,7 +34,7 @@ typedef enum {
   //CMD_RX_MASKED,
   //CMD_RX_DATA_MASKED,
   //CMD_RX_REMOTE_MASKED, 
-  //CMD_REPLY,        
+  CMD_REPLY,        
   //CMD_REPLY_MASKED,
   CMD_ABORT
 } CAN_cmd; 
@@ -50,7 +50,10 @@ typedef enum {
    New_Data,
    Data_Sent,
    Reading,
-   Finish           /**<  Reading is finished and new CAN Data can feed in the buffer.*/
+   RX_Finish,           /**<  Reading is finished and new CAN Data can feed in the buffer.*/
+   TX_Finish,
+   Pending,			/**< Wait for HW to transmitt or recive.*/
+   Fault
 }CAN_Stat;
 
 typedef union {

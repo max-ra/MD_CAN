@@ -16,6 +16,7 @@ extern "C" {
 #include "common.h"
 #include "../../02_kernel/scheduler/message_query.h"   
 #include "../../02_kernel/scheduler/task.h"  
+#include "../../02_kernel/scheduler/SoftwareTimer_SFT.h"
     
 /** Switching between different Hardware version */
 
@@ -23,7 +24,7 @@ extern "C" {
 #include "10_hardware/AT90CAN/AT90CAN_CAN.h"
 #endif
     
-#if defined(__dsPIC33EP512GM706__) || (__dsPIC33EP512GM604__)
+#if defined(__dsPIC33EP512GM706__) || defined(__dsPIC33EP512GM604__)
 #include "10_hardware/PIC33EP/PIC33EP_CAN.h"
 #endif
     
@@ -58,6 +59,7 @@ extern "C" {
     void MD_CAN_init(void);
     void MD_CAN_Cycle(void);
     uint_fast8_t MD_CAN_RxMob_add(CAN_MOB *in_MOB);
+	uint_fast8_t MD_CAN_RxMob_remove(CAN_MOB *in_MOB);
     
 #ifdef	__cplusplus
 }
