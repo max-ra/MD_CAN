@@ -697,3 +697,25 @@ void clearRxFlags(unsigned char buffer_number)
 	else;
         return Error;
  }
+ 
+uint_fast8_t CAN_check_mob_status (CAN_MOB *in_MOB) {
+//switch to CAN page
+if(in_MOB->Hardware_buffer > 15) {
+	return Error;
+}
+
+
+// check if Buffer is TX and buffer 0 (workarount)
+if(in_MOB->Hardware_buffer == 0) {
+    if (C1TR01CONbits.TXREQ0 == 0) {
+        in_MOB->Status = TX_Finish;
+    } else {
+        in_MOB->Status = Pending;
+    }
+    }
+return OK;
+}
+
+uint_fast8_t CAN_finish_mob (CAN_MOB *in_MOB) {
+    return OK;
+}

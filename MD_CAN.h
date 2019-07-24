@@ -17,6 +17,7 @@ extern "C" {
 #include "../../02_kernel/scheduler/message_query.h"   
 #include "../../02_kernel/scheduler/task.h"  
 #include "../../02_kernel/scheduler/SoftwareTimer_SFT.h"
+#include "../../global.h"
     
 /** Switching between different Hardware version */
 

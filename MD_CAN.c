@@ -168,7 +168,7 @@
 			break;
 			
 			case 100:
-				if (MD_CAN_MSQ_local.work_don_callback != NULL) {
+				if (MD_CAN_MSQ_local.work_don_callback != 0x00) {
 					MD_CAN_MSQ_local.work_don_callback();	
 				}
 				MD_CAN_Outbound_Task.TaskStatus = IDLE;
@@ -188,7 +188,7 @@
 				
 		if (MOB_RX_Status == OK) {
 			Hardware_CAN_MOB[Inbound_MOB_HW_Buffer_selected]->Status = New_Data;					
-			if (Hardware_CAN_MOB[Inbound_MOB_HW_Buffer_selected]->work_don_callback != NULL) {
+			if (Hardware_CAN_MOB[Inbound_MOB_HW_Buffer_selected]->work_don_callback != 0x00) {
 				Hardware_CAN_MOB[Inbound_MOB_HW_Buffer_selected]->work_don_callback();
 			}
 			MD_CAN_next_mob_pointer();
