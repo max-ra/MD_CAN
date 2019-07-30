@@ -65,12 +65,16 @@
 		Timer_Outbout_Delay.time_out_function = &MD_CAN_Outbound_Task_Run;
         
     //Starte Task System
-        MD_CAN_Outbound_Task.TaskStatus = IDLE;
-        MD_CAN_Inbound_Task.TaskStatus = IDLE;
+        MD_CAN_Outbound_Task.TaskStatus = INIT;
+        MD_CAN_Inbound_Task.TaskStatus = INIT;
     }
     
     void MD_CAN_Cycle(void) {
         switch(MD_CAN_Inbound_Task.TaskStatus) {
+			case INIT:
+				MD_CAN_Init_worker();
+			break;
+			
             case STOP:
             case PAUSE:
             break;
@@ -101,6 +105,7 @@
         }
         
         switch(MD_CAN_Outbound_Task.TaskStatus) {
+			case INIT:
             case STOP:
             case PAUSE:
             break;

@@ -82,6 +82,7 @@ typedef struct{
 
 // ##### function #####
 
+void MD_CAN_Init_worker(void);
 
 
 #ifdef	__cplusplus
