@@ -1,3 +1,4 @@
+#if defined(__AVR_AT90CAN128__)
 //******************************************************************************
 //! @file $RCSfile: can_drv.h,v $
 //!
@@ -466,3 +467,4 @@ uint_fast8_t CAN_check_mob_status (CAN_MOB *in_MOB);
 /**Release resources and finish MOB.*/
 uint_fast8_t CAN_finish_mob (CAN_MOB *in_MOB);
 #endif /* AT90CAN_CAN_H_ */
+#endif

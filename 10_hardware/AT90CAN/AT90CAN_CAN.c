@@ -1,3 +1,5 @@
+#if defined(__AVR_AT90CAN128__)
+
 /*
  * AT90CAN_CAN.c
  *
@@ -608,3 +610,4 @@ void CAN_Mob_data_init (uint8_t *Data, uint_fast8_t dlc) {
 		*(Data + i) = 0;
 	}
 }
+#endif
