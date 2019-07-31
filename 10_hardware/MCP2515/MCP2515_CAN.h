@@ -1,3 +1,4 @@
+//#if defined(__MCP2515__)
 /*
  * MD_MCP2515.h
  *
@@ -9,12 +10,13 @@
 #define MD_MCP2515_H_
 
 // ##### Including #####
-#include "../../../global.h"
-#include "../../../02_kernel/scheduler/task.h"
-
+#include "../../../../global.h"
+#include "../../../../02_kernel/scheduler/task.h"
+#include "../../common.h"
 // ##### Settings #####
 //IO pin for slave select is definden at 03_modul/MD_IO/MD_IO.h
 #define MCP2515_CAN_setting_max_spi_buffer_byte 25
+#define CAN_Setting_MessageBox_Max 3
 
 
 // ##### definition #####
@@ -305,7 +307,7 @@ extern Task_Status_Byte MD_MCP2515_Status;
 // ##### function #####
 
     void CAN_init (void);
-	void CAN_init_worker (void);
+	void MD_CAN_Init_worker(void);
     uint_fast8_t CAN_RxMOB_init(CAN_MOB *in_MOB);         /**< Add new MOB to Hardware configuration. Return OK if MOB is sendet otherwise returne ERROR.*/
     uint_fast8_t CAN_send_Data(CAN_MOB *in_MOB);          /**< Return OK if MOB is sendet otherwise returne ERROR.*/
     uint_fast8_t CAN_recive_Data(CAN_MOB *in_MOB);        /**< Coppy Data from DMA to MOB buffer. Return OK if MOB is sendet otherwise returne ERROR.*/
@@ -314,3 +316,4 @@ extern Task_Status_Byte MD_MCP2515_Status;
     uint_fast8_t CAN_finish_mob (CAN_MOB *in_MOB);        /**< Release resources and finish MOB.*/
 
 #endif /* MD_MCP2515_H_ */
+//#endif

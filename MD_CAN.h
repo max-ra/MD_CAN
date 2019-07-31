@@ -28,6 +28,10 @@ extern "C" {
 #if defined(__dsPIC33EP512GM706__) || defined(__dsPIC33EP512GM604__)
 #include "10_hardware/PIC33EP/PIC33EP_CAN.h"
 #endif
+
+#if defined(__MCP2515__)
+#include "10_hardware/MCP2515/MCP2515_CAN.h"
+#endif
     
 // ##### Settings #####
 #define MD_CAN_Setting_MSQ_max 5
