@@ -36,7 +36,7 @@
     uint_fast8_t get_free_buffer(uint_fast8_t *Buffer);
     void MD_CAN_next_mob_pointer(void);
     void MD_CAN_Callback_dummy(void);
-    void MD_CAN_Outbound_Task_Run(uint_fast8_t val);
+    void MD_CAN_Outbound_Task_Run(uint8_t val);
 	
     void MD_CAN_init(void) {
     //Message Boxes Mapper
@@ -260,6 +260,6 @@
         asm("NOP");
     }
 	
-	void MD_CAN_Outbound_Task_Run(uint_fast8_t val) {
+	void MD_CAN_Outbound_Task_Run(uint8_t val) {
 		MD_CAN_Outbound_Task.TaskStatus = RUN;
 	}

@@ -1,6 +1,7 @@
 // ##### Including #####
 #include "PIC33EP_CAN.h"
-
+#include "../../../../02_kernel/scheduler/task.h"
+#include "../../MD_CAN.h"
 // ##### Settings #####
 
 
@@ -27,19 +28,27 @@ void CAN_init(void) {
     
 //Init Connection to board
     //Ennable CAN Tranciver
-     //ANSELBbits.ANSB = 0;              //disable Analoug function
-     TRISBbits.TRISB10 = 0;              //Set as output pin
-     LATBbits.LATB10 = 0;                //switch to ground (enable the tranciver low active)
+    //@todo: change bit handling to something more uinke and not dependen on the MD_CAN module 
+    //@todo: FIX PIn config
+
+    //Ennable CAN Tranciver
+    TRISCbits.TRISC9 = 0;
+    LATCbits.LATC9 = 0;
      
     //Input Setup     
      //ANSELBbits.ANSB3 = 0;              //Disabel Analouge function at B3
-     TRISFbits.TRISF1 = 1;              //Set as input pin
-     RPINR26bits.C1RXR = 0b1100001;     //CAN1RX to RP97 
+     //TRISFbits.TRISF1 = 1;              //Set as input pin
+     //RPINR26bits.C1RXR = 0b1100001;     //CAN1RX to RP97 
 
     //Output Setup
      //ANSELCbits.ANSC9    = 0;           //Disable analouge functions
-     TRISCbits.TRISC9    = 0;           //TX as Output
-     RPOR7bits.RP57R     = 0b001110;    //CAN1TX to RC9
+     //TRISCbits.TRISC9    = 0;           //TX as Output
+     //RPOR7bits.RP57R     = 0b001110;    //CAN1TX to RC9
+     
+    RPINR26bits.C1RXR   = 0b0110111; //CAN1RX to RB55 
+    
+    RPOR7bits.RP56R     = 0b001110;       //CAN1TX to RB56
+    TRISCbits.TRISC8    = 0;        //TX as Output
      
 //Switch CAN Interface to Setup mode
 	C1CTRL1bits.REQOP=4;
@@ -186,6 +195,13 @@ void CAN_init_DMA (void) {
     DMA2STAH = 0x0000;
 	/* enable the channel */
 	DMA2CONbits.CHEN=1;   
+}
+
+/** No init worker is required since everythink is done during normal MD_CAN_init.
+ Set both worker to IDLE*/
+void MD_CAN_Init_worker(void) {
+    MD_CAN_Outbound_Task.TaskStatus = IDLE;
+    MD_CAN_Inbound_Task.TaskStatus = IDLE;
 }
 
  uint_fast8_t CAN_RxMOB_init(CAN_MOB *in_MOB) {
