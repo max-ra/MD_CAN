@@ -33,6 +33,10 @@ extern "C" {
 #include "10_hardware/MCP2515/MCP2515_CAN.h"
 #endif
     
+#if defined(__18F26K83)
+#include "10_hardware/PIC18F26K83/PIC18F26K83_CAN.h"
+#endif
+    
 // ##### Settings #####
 #define MD_CAN_Setting_MSQ_max 5
 

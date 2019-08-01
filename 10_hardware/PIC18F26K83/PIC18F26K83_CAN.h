@@ -1,3 +1,4 @@
+#if defined(__18F26K83)
 /* 
  * File:   PIC33EP_CAN.h
  * Author: maxi
@@ -16,8 +17,7 @@ extern "C" {
 #include "../../common.h"
 
 // ##### Settings #####
-#define CAN_Setting_MessageBox_Max 16
-#define ECAN1_MSG_BUF_LENGTH 	4
+#define CAN_Setting_MessageBox_Max 8
     
 // ##### definition #####
    /*
@@ -34,9 +34,6 @@ extern "C" {
 	
 
 // ##### variable #####
-/* DMA CAN Message Buffer Configuration */
-typedef unsigned int ECAN1MSGBUF [ECAN1_MSG_BUF_LENGTH][8];
-__eds__ extern ECAN1MSGBUF  ecan1msgBuf __attribute__((eds));
 
 // ##### function #####
     void CAN_init (void);
@@ -52,4 +49,4 @@ __eds__ extern ECAN1MSGBUF  ecan1msgBuf __attribute__((eds));
 #endif
 
 #endif	/* PIC18_CAN_H */
-
+#endif
