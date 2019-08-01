@@ -30,25 +30,22 @@ void CAN_init(void) {
     //Ennable CAN Tranciver
     //@todo: change bit handling to something more uinke and not dependen on the MD_CAN module 
     //@todo: FIX PIn config
-
+ 
     //Ennable CAN Tranciver
-    TRISCbits.TRISC9 = 0;
-    LATCbits.LATC9 = 0;
+     ANSELBbits.ANSB2 = 0;              //disable Analoug function
+     TRISBbits.TRISB2 = 0;              //Set as output pin
+     LATBbits.LATB2 = 0;                //switch to ground (enable the tranciver low active)
      
     //Input Setup     
-     //ANSELBbits.ANSB3 = 0;              //Disabel Analouge function at B3
-     //TRISFbits.TRISF1 = 1;              //Set as input pin
-     //RPINR26bits.C1RXR = 0b1100001;     //CAN1RX to RP97 
+     ANSELBbits.ANSB3 = 0;              //Disabel Analouge function at B3
+     TRISBbits.TRISB3 = 1;              //Set as input pin
+     RPINR26bits.C1RXR = 0b0100011;     //CAN1RX to RP35 
 
     //Output Setup
-     //ANSELCbits.ANSC9    = 0;           //Disable analouge functions
-     //TRISCbits.TRISC9    = 0;           //TX as Output
-     //RPOR7bits.RP57R     = 0b001110;    //CAN1TX to RC9
-     
-    RPINR26bits.C1RXR   = 0b0110111; //CAN1RX to RB55 
-    
-    RPOR7bits.RP56R     = 0b001110;       //CAN1TX to RB56
-    TRISCbits.TRISC8    = 0;        //TX as Output
+     ANSELCbits.ANSC0    = 0;           //Disable analouge functions
+     TRISCbits.TRISC0    = 0;           //TX as Output
+     RPOR5bits.RP48R     = 0b001110;    //CAN1TX to RB48
+
      
 //Switch CAN Interface to Setup mode
 	C1CTRL1bits.REQOP=4;
