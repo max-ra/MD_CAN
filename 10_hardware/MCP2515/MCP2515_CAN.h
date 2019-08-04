@@ -15,7 +15,7 @@
 #include "../../common.h"
 // ##### Settings #####
 //IO pin for slave select is definden at 03_modul/MD_IO/MD_IO.h
-#define MCP2515_CAN_setting_max_spi_buffer_byte 25
+#define MCP2515_CAN_setting_max_spi_buffer_byte 40
 #define CAN_Setting_MessageBox_Max 3
 
 
