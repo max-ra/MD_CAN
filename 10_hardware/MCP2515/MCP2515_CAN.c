@@ -185,7 +185,7 @@ void MD_CAN_Init_worker(void) {
 			//send config
 			SPI_Buffer[0] = SPI_WRITE;
 			SPI_Buffer[1] =  CNF1;
-			SPI_Buffer[2] = 1<<BRP0;
+			SPI_Buffer[2] = 0x00;
 			
 			SPI_Sender.Direction = SPI_write;
 			SPI_Sender.size = 3;
@@ -525,8 +525,10 @@ void next_init_step (void) {
 	   uint8_t length = in_MOB->data_length;
     
     // ID einstellen
-    mcp2515_write_register(TXB0SIDH, (uint8_t) (in_MOB->data_length >>3));
-    mcp2515_write_register(TXB0SIDL, (uint8_t) (in_MOB->data_length <<5));
+	uint8_t HIGH;
+	HIGH = (uint8_t)(in_MOB->Identifyer.standard >> 3);
+    mcp2515_write_register(TXB0SIDH, (uint8_t) (in_MOB->Identifyer.standard >> 3));
+    mcp2515_write_register(TXB0SIDL, (uint8_t) (in_MOB->Identifyer.standard <<5));
     
     // Ist die Nachricht ein "Remote Transmit Request"
     if (in_MOB->Command == CMD_REPLY)
@@ -549,12 +551,16 @@ void next_init_step (void) {
     }
     
     // CAN Nachricht verschicken
-			SPI_Buffer[0] = (SPI_RTS | 0x01);
-	
-			
-			SPI_Sender.Direction = SPI_write;
-			SPI_Sender.size = 1;
-			MSQ_message_push(&MD_SPI_MSQ_queue, &SPI_Sender);
+		MCP2515_CAN_SPI_callback(SPI_start);
+		spi_putc(SPI_RTS | 0x01);
+		MCP2515_CAN_SPI_callback(SPI_stop);
+// 			SPI_Buffer[0] = (SPI_RTS | 0x01);
+// 	
+// 			
+// 			SPI_Sender.Direction = SPI_write;
+// 			SPI_Sender.size = 1;
+// 			MSQ_message_push(&MD_SPI_MSQ_queue, &SPI_Sender);
+return OK;
   }
   
    /**
