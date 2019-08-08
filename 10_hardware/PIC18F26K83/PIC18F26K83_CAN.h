@@ -15,6 +15,7 @@ extern "C" {
 // ##### Including #####
 #include <xc.h>
 #include "../../common.h"
+#include "../../MD_CAN.h"
 
 // ##### Settings #####
 #define CAN_Setting_MessageBox_Max 8

@@ -38,7 +38,7 @@
     void MD_CAN_Callback_dummy(void);
     void MD_CAN_Outbound_Task_Run(uint_fast8_t val);
 	
-    void MD_CAN_init(void) {
+void MD_CAN_init(void) {
     //Message Boxes Mapper
         CAN_MOB_dummy.Command = CMD_NONE;
         CAN_MOB_dummy.Hardware_buffer = 0xFF;
@@ -246,7 +246,7 @@
     uint_fast8_t get_free_buffer(uint_fast8_t *Buffer) {
         //Check if space is left at HW Buffer (Message Boxes))
         uint_fast8_t i;
-        for (i = 0; i < CAN_Setting_MessageBox_Max; i++) {
+        for (i = 1; i < CAN_Setting_MessageBox_Max; i++) {
             if (Hardware_CAN_MOB[i]->Command == CMD_NONE) {
                 *Buffer = i;
                 return OK;

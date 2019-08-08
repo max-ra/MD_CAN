@@ -29,6 +29,17 @@ void CAN_init(void) {
     
 //Init Connection to board
    
+//    Online Beispiel
+//    TRISBbits.TRISB3 = 1;   //Setup CANRX pin
+//    ANSELBbits.ANSELB3 = 0;
+//    ODCONBbits.ODCB3 = 0;
+//    SLRCONBbits.SLRB3 = 0;
+//    
+//    TRISBbits.TRISB4 = 0;   //setup CANTX pin
+//    ANSELBbits.ANSELB4 = 0;
+//    ODCONBbits.ODCB4 = 0;
+//    SLRCONBbits.SLRB4 = 0;
+    
     //Input Setup     
      ANSELBbits.ANSELB4 = 0;              //Disabel Analouge function at B3
      TRISBbits.TRISB4 = 1;              //Set as input pin
@@ -74,9 +85,29 @@ void CAN_init(void) {
 	Time quanta: 8
 	Sample point: 1-1-4-2
 	Sample point: 75% */
-    BRGCON1 = 0x80;
-    BRGCON2 = 0x98;
-    BRGCON3 = 0x01;
+//    BRGCON1 = 0xC0; // 0xC0
+//    BRGCON2 = 0x98; // 0x98
+//    BRGCON3 = 0x01;
+    
+    // ################test
+    /** Timing der Schnittstelle einstellen **/
+
+        BRGCON1bits.BRP     = 0;        //Baud rate Prescaler = 2
+        //CAN Takt = 16MHZ/2 = 8MHZ
+
+        BRGCON1bits.SJW     = 0;        //Sync Jump Width   = 1TQ
+        BRGCON2bits.PRSEG   = 0;        //Probagation Delay = 1TQ
+        BRGCON2bits.SEG1PH  = 2;        //Phase Seg1        = 3TQ
+        BRGCON3bits.SEG2PH  = 2;        //Phase Seg2        = 3TQ
+        // Baud Rate = 8MHZ/(1TQ+1TQ+3TQ+3TQ) = 1Mbps*/
+
+        BRGCON2bits.SAM     = 1;        //Bit is sampled three times
+
+        BRGCON3bits.WAKDIS  = 1;        //Disable Wakeup from sleep on CAN
+        BRGCON3bits.WAKFIL  = 0;        //Line Filter not used for wakeup
+    
+    // ###############test
+    
     
     CANCON = 0x00;
     while (0x00 != (CANSTAT & 0xE0)); // wait until ECAN is in Normal mode
@@ -675,6 +706,11 @@ static void convertCANid2Reg(CAN_MOB *in_MOB, uint8_t *passedInEIDH, uint8_t *pa
         *passedInSIDL = Low(in_MOB->Identifyer.standard & 0xE0);
         *passedInSIDH = High(in_MOB->Identifyer.standard);
     }
+}
+
+void MD_CAN_Init_worker(){
+    MD_CAN_Inbound_Task.TaskStatus = IDLE;
+    MD_CAN_Outbound_Task.TaskStatus = IDLE;
 }
 
 #endif
