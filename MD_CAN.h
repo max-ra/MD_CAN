@@ -30,7 +30,7 @@ extern "C" {
 #endif
     
 // ##### Settings #####
-#define MD_CAN_Setting_MSQ_max 5
+#define MD_CAN_Setting_MSQ_max 10
 
 // ##### definition #####
     
