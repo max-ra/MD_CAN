@@ -47,7 +47,6 @@ uint8_t mcp2515_read_register(uint8_t adress);
  uint8_t spi_putc( uint8_t data );
 void CAN_init(void) {
 	//setup Hardware
-	DDRD |= (1<<PIND3);
 	MD_IO_SPI_CAN_Select_init();
 	
 	//Setup SPI link
@@ -72,11 +71,9 @@ void MCP2515_CAN_wakeup(uint_fast8_t temp) {
 
 void MCP2515_CAN_SPI_callback(uint_fast8_t status) {
 	if (status == SPI_start) {
-		PORTD &= ~(1<<PIND3);
 		MD_IO_SPI_CAN_Select_off();
 	} else if (status == SPI_stop) {
 		next_init_step();
-		PORTD |= (1<<PIND3);
 		MD_IO_SPI_CAN_Select_on();
 	}
 }
@@ -574,8 +571,11 @@ return OK;
 	 
  }
  
+ //check if new data is availabel 
+ //todo: onyl qick hackarount for FSG
  uint_fast8_t CAN_check_new_Data (CAN_MOB *in_MOB) {
-	 
+	 //if (in_MOB->Hardware_buffer == 1) {
+		 
  }
  
  uint_fast8_t CAN_check_mob_status (CAN_MOB *in_MOB)  {
