@@ -232,6 +232,8 @@ void MD_CAN_init(void) {
             return overflow;
         }
         
+        in_MOB->Hardware_buffer = Buffer;
+        
        //Add MOB to Chip Hardware
         if (!(CAN_RxMOB_init(in_MOB) == OK)) {
             return Error;

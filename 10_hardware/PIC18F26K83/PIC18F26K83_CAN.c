@@ -141,8 +141,8 @@ if (in_MOB->frame_type==standard) {
     switch(in_MOB->Hardware_buffer) {
         case 1:
            //Set filter id
-            RXF0SIDH = High(in_MOB->Identifyer.standard);
-            RXF0SIDL = Low(in_MOB->Identifyer.standard & 0xE0);
+            RXF0SIDH = (uint8_t)(in_MOB->Identifyer.standard >> 3);
+            RXF0SIDL = (uint8_t)((in_MOB->Identifyer.standard << 5 )& 0xE0);
     
            /* set filter to accept standard id only */
             RXF0EIDH = 0x00;
@@ -413,32 +413,32 @@ return OK;
     }
     else if ((RXB0CONbits.RXFUL != 0) && (in_MOB->Hardware_buffer == 1)) //CheckRXB1
     {
-        if ((RXB1SIDL & 0x08) == 0x08) //If Extended Message
+        if ((RXB0SIDL & 0x08) == 0x08) //If Extended Message
         {
             //message is extended
             in_MOB->frame_type = extendet;
-            in_MOB->Identifyer.extendet = convertReg2ExtendedCANid(RXB1EIDH, RXB1EIDL, RXB1SIDH, RXB1SIDL);
+            in_MOB->Identifyer.extendet = convertReg2ExtendedCANid(RXB0EIDH, RXB0EIDL, RXB0SIDH, RXB0SIDL);
         }
         else
         {
             //message is standard
             in_MOB->frame_type = standard;
-            in_MOB->Identifyer.standard = convertReg2StandardCANid(RXB1SIDH, RXB1SIDL);
+            in_MOB->Identifyer.standard = convertReg2StandardCANid(RXB0SIDH, RXB0SIDL);
         }
 
-        in_MOB->data_length = RXB1DLC;
-        in_MOB->data[0] = RXB1D0;
-        in_MOB->data[1] = RXB1D1;
-        in_MOB->data[2] = RXB1D2;
-        in_MOB->data[3] = RXB1D3;
-        in_MOB->data[4] = RXB1D4;
-        in_MOB->data[5] = RXB1D5;
-        in_MOB->data[6] = RXB1D6;
-        in_MOB->data[7] = RXB1D7;
-        RXB1CONbits.RXFUL = 0;
+        in_MOB->data_length = RXB0DLC;
+        in_MOB->data[0] = RXB0D0;
+        in_MOB->data[1] = RXB0D1;
+        in_MOB->data[2] = RXB0D2;
+        in_MOB->data[3] = RXB0D3;
+        in_MOB->data[4] = RXB0D4;
+        in_MOB->data[5] = RXB0D5;
+        in_MOB->data[6] = RXB0D6;
+        in_MOB->data[7] = RXB0D7;
+        RXB0CONbits.RXFUL = 0;
         returnValue = 1;
     }
-    else if (B0CONbits.RXFUL_TXBIF != 0) //CheckB0
+    else if ((B0CONbits.RXFUL_TXBIF != 0) && (in_MOB->Hardware_buffer == 2))//CheckB0
     {
         if ((B0SIDL & 0x08) == 0x08) //If Extended Message
         {
@@ -464,8 +464,10 @@ return OK;
         in_MOB->data[7] = B0D7;
         B0CONbits.RXFUL_TXBIF = 0;
         returnValue = 1;
+        
+        clearRxFlags(0);
     }
-    else if (B1CONbits.RXFUL_TXBIF != 0) //CheckB1
+    else if ((B1CONbits.RXFUL_TXBIF != 0) && (in_MOB->Hardware_buffer == 3)) //CheckB1
     {
         if ((B1SIDL & 0x08) == 0x08) //If Extended Message
         {
@@ -493,7 +495,7 @@ return OK;
         B1CONbits.RXFUL_TXBIF = 0;
         returnValue = 1;
     }
-    else if (B2CONbits.RXFUL_TXBIF != 0) //CheckB2
+    else if ((B2CONbits.RXFUL_TXBIF != 0) && (in_MOB->Hardware_buffer == 4)) //CheckB2
     {
         if ((B2SIDL & 0x08) == 0x08) //If Extended Message
         {
@@ -521,7 +523,7 @@ return OK;
         B2CONbits.RXFUL_TXBIF = 0;
         returnValue = 1;
     }
-    else if (B3CONbits.RXFUL_TXBIF != 0) //CheckB3
+    else if ((B3CONbits.RXFUL_TXBIF != 0) && (in_MOB->Hardware_buffer == 5)) //CheckB3
     {
         if ((B3SIDL & 0x08) == 0x08) //If Extended Message
         {
@@ -549,7 +551,7 @@ return OK;
         B3CONbits.RXFUL_TXBIF = 0;
         returnValue = 1;
     }
-    else if (B4CONbits.RXFUL_TXBIF != 0) //CheckB4
+    else if ((B4CONbits.RXFUL_TXBIF != 0) && (in_MOB->Hardware_buffer == 6)) //CheckB4
     {
         if ((B4SIDL & 0x08) == 0x08) //If Extended Message
         {
@@ -594,14 +596,15 @@ void clearRxFlags(unsigned char buffer_number)
 	if((RXB0CONbits.RXFUL) && (buffer_number==0))
 		RXB0CONbits.RXFUL=0;	
 	else if((RXB1CONbits.RXFUL) && (buffer_number==1))
-		RXB1CONbits.RXFUL=0;		
+		RXB0CONbits.RXFUL=0;		
 	else;
 }
  
  uint_fast8_t CAN_check_new_Data (CAN_MOB *in_MOB) {
     
-     if((RXB0CONbits.RXFUL) && (in_MOB->Hardware_buffer==1))
+     if((RXB0CONbits.RXFUL) && (in_MOB->Hardware_buffer==1)) {
 		return OK;	
+     }
 	else if((RXB1CONbits.RXFUL) && (in_MOB->Hardware_buffer==2))
 		return OK;		
 	else if((B0CONbits.RXFUL) && (in_MOB->Hardware_buffer==3))
