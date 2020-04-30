@@ -703,8 +703,8 @@ static void convertCANid2Reg(CAN_MOB *in_MOB, uint8_t *passedInEIDH, uint8_t *pa
     {
         *passedInEIDH = 0;
         *passedInEIDL = 0;
-        *passedInSIDL = Low(in_MOB->Identifyer.standard & 0xE0);
-        *passedInSIDH = High(in_MOB->Identifyer.standard);
+        *passedInSIDL = (uint8_t)((in_MOB->Identifyer.standard << 5) & 0xE0);
+        *passedInSIDH = (uint8_t)(in_MOB->Identifyer.standard >> 3);
     }
 }
 
