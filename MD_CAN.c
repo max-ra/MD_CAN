@@ -248,7 +248,7 @@ void MD_CAN_init(void) {
     uint_fast8_t get_free_buffer(uint_fast8_t *Buffer) {
         //Check if space is left at HW Buffer (Message Boxes))
         uint_fast8_t i;
-        for (i = 1; i < CAN_Setting_MessageBox_Max; i++) {
+        for (i = 0; i < CAN_Setting_MessageBox_Max; i++) {
             if (Hardware_CAN_MOB[i]->Command == CMD_NONE) {
                 *Buffer = i;
                 return OK;
