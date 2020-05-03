@@ -164,26 +164,26 @@ if (in_MOB->frame_type==standard) {
             RXF1EIDH = 0x00;
             RXF1EIDL = 0x00;
     
-           /* acceptance filter 0 to use buffer RXB0 for incoming messages */
-            RXFBCON0bits.F1BP = 0;
+           /* acceptance filter 1 to use buffer RXB1 for incoming messages */
+            RXFBCON0bits.F1BP = 1;
     
-           /* enable filter 0 */
+           /* enable filter 1 */
             RXFCON0bits.RXF1EN = 1;
         break;    
         
         case 2:
            //Set filter id
             RXF2SIDH = (uint8_t)(in_MOB->Identifyer.standard >> 3);
-            RXF0SIDL = (uint8_t)((in_MOB->Identifyer.standard << 5 )& 0xE0);
+            RXF2SIDL = (uint8_t)((in_MOB->Identifyer.standard << 5 )& 0xE0);
     
            /* set filter to accept standard id only */
             RXF2EIDH = 0x00;
             RXF2EIDL = 0x00;
     
-           /* acceptance filter 0 to use buffer RXB0 for incoming messages */
-            RXFBCON1bits.F2BP = 0;
+           /* acceptance filter 2 to use buffer B0 for incoming messages */
+            RXFBCON1bits.F2BP = 2;
     
-           /* enable filter 0 */
+           /* enable filter 2 */
             RXFCON0bits.RXF2EN = 1;
 
         break;    
@@ -197,10 +197,10 @@ if (in_MOB->frame_type==standard) {
             RXF3EIDH = 0x00;
             RXF3EIDL = 0x00;
     
-           /* acceptance filter 0 to use buffer RXB0 for incoming messages */
-            RXFBCON1bits.F3BP = 0;
+           /* acceptance filter 3 to use buffer B1 for incoming messages */
+            RXFBCON1bits.F3BP = 3;
     
-           /* enable filter 0 */
+           /* enable filter 3 */
             RXFCON0bits.RXF3EN = 1;
 
         break;  
@@ -214,10 +214,10 @@ if (in_MOB->frame_type==standard) {
             RXF4EIDH = 0x00;
             RXF4EIDL = 0x00;
     
-           /* acceptance filter 0 to use buffer RXB0 for incoming messages */
-            RXFBCON2bits.F4BP = 0;
+           /* acceptance filter 4 to use buffer B2 for incoming messages */
+            RXFBCON2bits.F4BP = 4;
     
-           /* enable filter 0 */
+           /* enable filter 4 */
             RXFCON0bits.RXF4EN = 1;
 
         break;  
@@ -231,10 +231,10 @@ if (in_MOB->frame_type==standard) {
             RXF5EIDH = 0x00;
             RXF5EIDL = 0x00;
     
-           /* acceptance filter 0 to use buffer RXB0 for incoming messages */
-            RXFBCON2bits.F5BP = 0;
+           /* acceptance filter 5 to use buffer B3 for incoming messages */
+            RXFBCON2bits.F5BP = 5;
     
-           /* enable filter 0 */
+           /* enable filter 5 */
             RXFCON0bits.RXF5EN = 1;
 
         break;  
@@ -248,10 +248,10 @@ if (in_MOB->frame_type==standard) {
             RXF6EIDH = 0x00;
             RXF6EIDL = 0x00;
     
-           /* acceptance filter 0 to use buffer RXB0 for incoming messages */
-            RXFBCON3bits.F6BP = 0;
+           /* acceptance filter 6 to use buffer B4 for incoming messages */
+            RXFBCON3bits.F6BP = 6;
     
-           /* enable filter 0 */
+           /* enable filter 6 */
             RXFCON0bits.RXF6EN = 1;
 
         break;  
@@ -265,10 +265,10 @@ if (in_MOB->frame_type==standard) {
             RXF7EIDH = 0x00;
             RXF7EIDL = 0x00;
     
-           /* acceptance filter 0 to use buffer RXB0 for incoming messages */
-            RXFBCON3bits.F7BP = 0;
+           /* acceptance filter 7 to use buffer B5 for incoming messages */
+            RXFBCON3bits.F7BP = 7;
     
-           /* enable filter 0 */
+           /* enable filter 7 */
             RXFCON0bits.RXF7EN = 1;
 
         break;  
